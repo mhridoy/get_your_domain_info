@@ -7,9 +7,9 @@ from github import Github
 # Flask app creation should be done by create_initialized_flask_app to avoid circular dependency problems.
 app = create_initialized_flask_app()
 
-# Ensure the instance path is in a writable directory in serverless environments
+# Ensure the instance path is set to a writable directory in serverless environments like Vercel
 app.config['INSTANCE_PATH'] = '/tmp'  # Use `/tmp` instead of the default `/var/task/instance`
-app.instance_path = '/tmp'  # Set instance path to a writable location like `/tmp`
+app.instance_path = '/tmp'  # Make Flask's instance path writable in serverless environments
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
