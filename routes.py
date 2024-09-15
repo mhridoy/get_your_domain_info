@@ -40,27 +40,36 @@ def get_certificate_info(domain):
 
 def find_subdomains(domain):
     try:
-        subdomains = []
+        subdomains = set()
         resolver = dns.resolver.Resolver()
-        resolver.timeout = 2
-        resolver.lifetime = 2
+        resolver.timeout = 5
+        resolver.lifetime = 5
         common_subdomains = [
             'www', 'mail', 'ftp', 'localhost', 'webmail', 'smtp', 'pop', 'ns1', 'webdisk', 'ns2', 'cpanel', 'whm', 'autodiscover', 'autoconfig',
             'blog', 'shop', 'forum', 'support', 'dev', 'api', 'cdn', 'app', 'test', 'staging', 'admin', 'portal', 'secure', 'vpn', 'remote',
             'm', 'mobile', 'ftp', 'webmail', 'mail', 'remote', 'blog', 'server', 'ns', 'smtp', 'secure', 'vpn', 'mx', 'email', 'cloud', 'api',
             'api2', 'beta', 'gateway', 'host', 'proxy', 'backup', 'sql', 'mysql', 'ftp2', 'test2', 'db', 'db1', 'app2', 'apps', 'download',
-            'downloads', 'web', 'dev2', 'developer', 'development', 'test3', 'mail2', 'mail3', 'api3', 'secure2', 'vpn2', 'ns3', 'ns4', 'static'
+            'downloads', 'web', 'dev2', 'developer', 'development', 'test3', 'mail2', 'mail3', 'api3', 'secure2', 'vpn2', 'ns3', 'ns4', 'static',
+            'preview', 'docs', 'status', 'help', 'login', 'auth', 'dashboard', 'analytics', 'img', 'images', 'assets', 'media', 'files', 'store'
         ]
         for prefix in common_subdomains:
             try:
                 answers = resolver.resolve(f"{prefix}.{domain}", 'A')
                 if answers:
-                    subdomains.append(f"{prefix}.{domain}")
+                    subdomains.add(f"{prefix}.{domain}")
             except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.Timeout):
                 pass
             except Exception as e:
                 logging.error(f"Error checking subdomain {prefix}.{domain}: {str(e)}")
-        return subdomains
+        
+        # Add subdomains from certificate SANs
+        cert_info = get_certificate_info(domain)
+        if 'san' in cert_info:
+            for san in cert_info['san']:
+                if san[0] == 'DNS' and san[1].endswith(domain):
+                    subdomains.add(san[1])
+        
+        return list(subdomains)
     except Exception as e:
         logging.error(f"Error finding subdomains: {str(e)}")
         return []
@@ -84,7 +93,6 @@ def api_certificate():
 def api_subdomains():
     domain = request.json.get('domain')
     subdomains = find_subdomains(domain)
-    return jsonify(subdomains)
     return jsonify(subdomains)
 
 def register_routes(app):
