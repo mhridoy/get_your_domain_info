@@ -31,7 +31,8 @@ def get_certificate_info(domain):
             'valid_from': not_before.isoformat(),
             'valid_to': not_after.isoformat(),
             'ip_address': socket.gethostbyname(domain),
-            'subdomains': subdomains
+            'subdomains': subdomains,
+            'san': san
         }
     except Exception as e:
         logging.error(f"Error fetching certificate info: {str(e)}")
