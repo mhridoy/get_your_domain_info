@@ -55,13 +55,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displaySubdomains(data) {
-        if (!data.subdomains || data.subdomains.length === 0) {
+        if (!data || !data.subdomains || data.subdomains.length === 0) {
             subdomainsList.innerHTML = '<li>No subdomains found</li>';
         } else {
             subdomainsList.innerHTML = data.subdomains.map(subdomain => `<li>${subdomain}</li>`).join('');
         }
         // Display SANs if available
-        if (data.san && data.san.length > 0) {
+        if (data && data.san && data.san.length > 0) {
             subdomainsList.innerHTML += '<li><strong>Subject Alternative Names:</strong></li>';
             subdomainsList.innerHTML += data.san.map(san => `<li>${san[1]}</li>`).join('');
         }
