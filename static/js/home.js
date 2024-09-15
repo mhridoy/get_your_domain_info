@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const result = document.getElementById('result');
     const certificateDetails = document.getElementById('certificate-details');
     const subdomainsList = document.getElementById('subdomains-list');
+    const progressBar = document.getElementById('progress-bar');
 
     themeToggle.addEventListener('click', () => {
         document.documentElement.classList.toggle('dark');
@@ -13,7 +14,19 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const domain = document.getElementById('domain').value;
 
+        // Show progress bar
+        progressBar.classList.remove('hidden');
+        progressBar.style.width = '0%';
+
         try {
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                progressBar.style.width = `${progress}%`;
+                if (progress >= 90) clearInterval(progressInterval);
+            }, 200);
+
             const [certificateResponse, subdomainsResponse] = await Promise.all([
                 fetch('/api/certificate', {
                     method: 'POST',
@@ -34,13 +47,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const certificateData = await certificateResponse.json();
             const subdomainsData = await subdomainsResponse.json();
 
-            displayCertificateInfo(certificateData);
-            displaySubdomains(subdomainsData);
+            // Complete progress bar
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
 
-            result.classList.remove('hidden');
+            setTimeout(() => {
+                progressBar.classList.add('hidden');
+                displayCertificateInfo(certificateData);
+                displaySubdomains(subdomainsData);
+                result.classList.remove('hidden');
+            }, 500);
+
         } catch (error) {
             console.error('Error:', error);
             alert(`An error occurred while fetching the data: ${error.message}. Please try again.`);
+            progressBar.classList.add('hidden');
         }
     });
 
