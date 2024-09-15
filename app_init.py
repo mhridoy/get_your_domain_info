@@ -7,7 +7,7 @@ def create_app():
     app = Flask(__name__, static_folder='static')
 
     # Initialize database
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///your_database.db'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     db.init_app(app)
 
     # Run migrations
