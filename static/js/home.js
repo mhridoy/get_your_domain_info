@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
             result.classList.remove('hidden');
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while fetching the data. Please try again.');
+            alert(`An error occurred while fetching the data: ${error.message}. Please try again.`);
         }
     });
 
