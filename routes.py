@@ -21,12 +21,17 @@ def get_certificate_info(domain):
         not_before = datetime.strptime(cert['notBefore'], '%b %d %H:%M:%S %Y %Z')
         not_after = datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z')
 
+        # Extract SANs (Subject Alternative Names)
+        san = cert.get('subjectAltName', [])
+        subdomains = [entry[1] for entry in san if entry[0] == 'DNS']
+
         return {
             'common_name': subject.get('commonName'),
             'issuer': issuer.get('commonName'),
             'valid_from': not_before.isoformat(),
             'valid_to': not_after.isoformat(),
-            'ip_address': socket.gethostbyname(domain)
+            'ip_address': socket.gethostbyname(domain),
+            'subdomains': subdomains
         }
     except Exception as e:
         logging.error(f"Error fetching certificate info: {str(e)}")
