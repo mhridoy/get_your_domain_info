@@ -35,12 +35,19 @@ def get_certificate_info(domain):
 def find_subdomains(domain):
     try:
         subdomains = []
-        for prefix in ['www', 'mail', 'ftp', 'localhost', 'webmail', 'smtp', 'pop', 'ns1', 'webdisk', 'ns2', 'cpanel', 'whm', 'autodiscover', 'autoconfig', 'm', 'imap', 'test', 'ns', 'blog', 'pop3', 'dev', 'www2', 'admin', 'forum', 'news', 'vpn', 'ns3', 'mail2', 'new', 'mysql', 'old', 'lists', 'support', 'mobile', 'mx', 'static', 'docs', 'beta', 'shop', 'sql', 'secure', 'demo', 'cp', 'calendar', 'wiki', 'web', 'media', 'email', 'images', 'img', 'www1', 'intranet', 'portal', 'video', 'sip', 'dns2', 'api', 'cdn', 'stats', 'dns1', 'ns4', 'www3', 'dns', 'search', 'staging', 'server', 'mx1', 'chat', 'wap', 'my', 'svn', 'mail1', 'sites', 'proxy', 'ads', 'host', 'crm', 'cms', 'backup', 'mx2', 'lyncdiscover', 'info', 'apps', 'download', 'remote', 'db', 'forums', 'store', 'relay', 'files', 'newsletter', 'app', 'live', 'owa', 'en', 'start', 'sms', 'office', 'exchange', 'ipv4']:
+        resolver = dns.resolver.Resolver()
+        resolver.timeout = 1
+        resolver.lifetime = 1
+        common_subdomains = ['www', 'mail', 'ftp', 'localhost', 'webmail', 'smtp', 'pop', 'ns1', 'webdisk', 'ns2', 'cpanel', 'whm', 'autodiscover', 'autoconfig']
+        for prefix in common_subdomains:
             try:
-                socket.gethostbyname(f"{prefix}.{domain}")
-                subdomains.append(f"{prefix}.{domain}")
-            except socket.gaierror:
+                answers = resolver.resolve(f"{prefix}.{domain}", 'A')
+                if answers:
+                    subdomains.append(f"{prefix}.{domain}")
+            except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.Timeout):
                 pass
+            except Exception as e:
+                logging.error(f"Error checking subdomain {prefix}.{domain}: {str(e)}")
         return subdomains
     except Exception as e:
         logging.error(f"Error finding subdomains: {str(e)}")
@@ -65,6 +72,7 @@ def api_certificate():
 def api_subdomains():
     domain = request.json.get('domain')
     subdomains = find_subdomains(domain)
+    return jsonify(subdomains)
     return jsonify(subdomains)
 
 def register_routes(app):
