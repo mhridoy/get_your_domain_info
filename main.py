@@ -56,3 +56,9 @@ if __name__ == "__main__":
 else:
     # For Vercel deployment
     app = create_app()
+
+# Vercel serverless function handler
+from flask import Flask
+
+def handler(event, context):
+    return app(event, context)
