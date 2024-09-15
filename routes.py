@@ -36,7 +36,7 @@ def get_certificate_info(domain):
         }
     except Exception as e:
         logging.error(f"Error fetching certificate info: {str(e)}")
-        return None
+        return {"error": str(e)}
 
 def find_subdomains(domain):
     try:
