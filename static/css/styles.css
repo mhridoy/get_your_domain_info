@@ -1,0 +1,234 @@
+@import url("https://cdn.jsdelivr.net/npm/tailwindcss@3.4.3/base.min.css");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
+
+/* Custom styles for night sky moonlit theme */
+:root {
+  --bg-color: #0d1b2a;
+  --text-color: #e0e1dd;
+  --header-bg: #1b263b;
+  --nav-link-bg: #415a77;
+  --nav-link-hover: #778da9;
+  --moonlit-color: #f4d35e;
+  --footer-bg: #1b263b;
+  --footer-text-color: #e0e1dd;
+  --star-color: rgba(255, 255, 255, 0.8);
+  --meteor-color: #ff6b6b;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Nunito', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Animated night sky background */
+.bg-night-sky {
+  background-color: var(--bg-color);
+  background-image: 
+    radial-gradient(var(--star-color), rgba(255,255,255,.2) 2px, transparent 40px),
+    radial-gradient(var(--star-color), rgba(255,255,255,.15) 1px, transparent 30px),
+    radial-gradient(var(--star-color), rgba(255,255,255,.1) 2px, transparent 40px),
+    radial-gradient(rgba(255,255,255,.4), rgba(255,255,255,.1) 2px, transparent 30px);
+  background-size: 550px 550px, 350px 350px, 250px 250px, 150px 150px;
+  background-position: 0 0, 40px 60px, 130px 270px, 70px 100px;
+  animation: twinkling 100s linear infinite;
+}
+
+@keyframes twinkling {
+  from { background-position: 0 0, 40px 60px, 130px 270px, 70px 100px; }
+  to { background-position: -550px 550px, -310px 410px, -120px 520px, -80px 250px; }
+}
+
+/* Meteor animation */
+.meteor {
+  position: absolute;
+  width: 2px;
+  height: 90px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0), var(--meteor-color));
+  transform: rotate(-45deg);
+  animation: meteor 10s linear infinite;
+}
+
+@keyframes meteor {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(-45deg); }
+  100% { transform: translateX(300%) translateY(300%) rotate(-45deg); }
+}
+
+.app-header {
+  background-color: rgba(27, 38, 59, 0.8);
+  backdrop-filter: blur(10px);
+  color: var(--text-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.app-logo-image {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  box-shadow: 0 0 15px var(--moonlit-color);
+  transition: all 0.3s ease;
+}
+
+.app-logo-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 25px var(--moonlit-color);
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 0 10px var(--moonlit-color);
+}
+
+.desktop-nav-link {
+  font-family: 'Courier New', monospace;
+  background-color: var(--nav-link-bg);
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.desktop-nav-link::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, var(--moonlit-color) 20%, transparent 20%);
+  opacity: 0;
+  transition: opacity 0.3s, transform 0.3s;
+  transform: scale(0.5);
+}
+
+.desktop-nav-link:hover::before {
+  opacity: 0.1;
+  transform: scale(1);
+}
+
+.desktop-nav-link:hover {
+  background-color: var(--nav-link-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu-button {
+  background-color: var(--nav-link-bg);
+  color: var(--text-color);
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-button:hover {
+  background-color: var(--nav-link-hover);
+  transform: scale(1.05);
+}
+
+.mobile-menu {
+  background-color: rgba(27, 38, 59, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.mobile-menu-link {
+  color: var(--text-color);
+  border-bottom: 1px solid rgba(74, 85, 104, 0.2);
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-link:hover {
+  background-color: var(--nav-link-hover);
+  color: var(--moonlit-color);
+  transform: translateX(5px);
+}
+
+.main-content {
+  max-width: 1280px;
+  margin: 2rem auto 0;
+  padding: 2rem;
+  background-color: rgba(27, 38, 59, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Table styles */
+.certificate-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+}
+
+.certificate-table th,
+.certificate-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(65, 90, 119, 0.2);
+}
+
+.certificate-table th {
+  background-color: rgba(27, 38, 59, 0.8);
+  color: var(--moonlit-color);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.certificate-table tr {
+  transition: all 0.3s ease;
+}
+
+.certificate-table tr:hover {
+  background-color: rgba(65, 90, 119, 0.2);
+  transform: scale(1.02);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .desktop-nav {
+    display: none;
+  }
+  
+  .mobile-menu-button {
+    display: block;
+  }
+  
+  .main-content {
+    padding: 1rem;
+  }
+  
+  .certificate-table {
+    font-size: 0.9rem;
+  }
+}
+
+/* Moonlit accent elements */
+.moonlit-accent {
+  color: var(--moonlit-color);
+  text-shadow: 0 0 10px rgba(244, 211, 94, 0.5);
+}
+
+/* Add a subtle glow effect to important elements */
+.glow-effect {
+  box-shadow: 0 0 15px var(--moonlit-color);
+  transition: box-shadow 0.3s ease;
+}
+
+.glow-effect:hover {
+  box-shadow: 0 0 25px var(--moonlit-color);
+}
