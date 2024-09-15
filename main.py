@@ -9,6 +9,7 @@ app = create_initialized_flask_app()
 
 # Ensure the instance path is in a writable directory in serverless environments
 app.config['INSTANCE_PATH'] = '/tmp'  # Use `/tmp` instead of the default `/var/task/instance`
+app.instance_path = '/tmp'  # Set instance path to a writable location like `/tmp`
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -45,7 +46,8 @@ def push_to_github():
         ]
         
         for file_name in files_to_commit:
-            with open(file_name, 'r') as file:
+            file_path = os.path.join(os.getcwd(), file_name)
+            with open(file_path, 'r') as file:
                 content = file.read()
             repo.create_file(file_name, f"Add {file_name}", content)
         
@@ -61,6 +63,8 @@ if __name__ == "__main__":
         "accesslog": "-",
         "timeout": 120
     }
+    # Push code to GitHub when starting the app
     push_to_github()
-    StandaloneApplication(app, options).run()
+    
+    # Run the Flask app using Gunicorn
     StandaloneApplication(app, options).run()
