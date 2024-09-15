@@ -1,0 +1,13 @@
+Flask
+Flask-SQLAlchemy
+PyGithub
+SQLAlchemy
+beautifulsoup4
+cryptography
+dnspython
+flask-static-compress
+flask==3.0.1
+gunicorn
+requests
+sqlalchemy
+werkzeug==3.0.1
