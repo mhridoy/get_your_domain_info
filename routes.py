@@ -36,10 +36,15 @@ def find_subdomains(domain):
     try:
         subdomains = []
         resolver = dns.resolver.Resolver()
-        resolver.timeout = 1
-        resolver.lifetime = 1
-        common_subdomains = ['www', 'mail', 'ftp', 'localhost', 'webmail', 'smtp', 'pop', 'ns1', 'webdisk', 'ns2', 'cpanel', 'whm', 'autodiscover', 'autoconfig',
-                             'blog', 'shop', 'forum', 'support', 'dev', 'api', 'cdn', 'app', 'test', 'staging', 'admin', 'portal', 'secure', 'vpn', 'remote']
+        resolver.timeout = 2
+        resolver.lifetime = 2
+        common_subdomains = [
+            'www', 'mail', 'ftp', 'localhost', 'webmail', 'smtp', 'pop', 'ns1', 'webdisk', 'ns2', 'cpanel', 'whm', 'autodiscover', 'autoconfig',
+            'blog', 'shop', 'forum', 'support', 'dev', 'api', 'cdn', 'app', 'test', 'staging', 'admin', 'portal', 'secure', 'vpn', 'remote',
+            'm', 'mobile', 'ftp', 'webmail', 'mail', 'remote', 'blog', 'server', 'ns', 'smtp', 'secure', 'vpn', 'mx', 'email', 'cloud', 'api',
+            'api2', 'beta', 'gateway', 'host', 'proxy', 'backup', 'sql', 'mysql', 'ftp2', 'test2', 'db', 'db1', 'app2', 'apps', 'download',
+            'downloads', 'web', 'dev2', 'developer', 'development', 'test3', 'mail2', 'mail3', 'api3', 'secure2', 'vpn2', 'ns3', 'ns4', 'static'
+        ]
         for prefix in common_subdomains:
             try:
                 answers = resolver.resolve(f"{prefix}.{domain}", 'A')
