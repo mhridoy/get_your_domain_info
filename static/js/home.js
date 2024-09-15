@@ -55,6 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displaySubdomains(data) {
-        subdomainsList.innerHTML = data.map(subdomain => `<li>${subdomain}</li>`).join('');
+        if (data.length === 0) {
+            subdomainsList.innerHTML = '<li>No subdomains found</li>';
+        } else {
+            subdomainsList.innerHTML = data.map(subdomain => `<li>${subdomain}</li>`).join('');
+        }
     }
 });
