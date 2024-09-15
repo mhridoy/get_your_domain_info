@@ -38,7 +38,8 @@ def find_subdomains(domain):
         resolver = dns.resolver.Resolver()
         resolver.timeout = 1
         resolver.lifetime = 1
-        common_subdomains = ['www', 'mail', 'ftp', 'localhost', 'webmail', 'smtp', 'pop', 'ns1', 'webdisk', 'ns2', 'cpanel', 'whm', 'autodiscover', 'autoconfig']
+        common_subdomains = ['www', 'mail', 'ftp', 'localhost', 'webmail', 'smtp', 'pop', 'ns1', 'webdisk', 'ns2', 'cpanel', 'whm', 'autodiscover', 'autoconfig',
+                             'blog', 'shop', 'forum', 'support', 'dev', 'api', 'cdn', 'app', 'test', 'staging', 'admin', 'portal', 'secure', 'vpn', 'remote']
         for prefix in common_subdomains:
             try:
                 answers = resolver.resolve(f"{prefix}.{domain}", 'A')
