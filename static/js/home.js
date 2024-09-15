@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displaySubdomains(data) {
-        if (data.subdomains.length === 0) {
+        if (!data.subdomains || data.subdomains.length === 0) {
             subdomainsList.innerHTML = '<li>No subdomains found</li>';
         } else {
             subdomainsList.innerHTML = data.subdomains.map(subdomain => `<li>${subdomain}</li>`).join('');
