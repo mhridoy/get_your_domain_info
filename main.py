@@ -7,6 +7,9 @@ from github import Github
 # Flask app creation should be done by create_initialized_flask_app to avoid circular dependency problems.
 app = create_initialized_flask_app()
 
+# Ensure the instance path is in a writable directory in serverless environments
+app.config['INSTANCE_PATH'] = '/tmp'  # Use `/tmp` instead of the default `/var/task/instance`
+
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
