@@ -1,40 +1,24 @@
 import logging
 import os
-from gunicorn.app.base import BaseApplication
-from app_init import create_initialized_flask_app
+from app_init import create_app
 from github import Github
-
-# Flask app creation should be done by create_initialized_flask_app to avoid circular dependency problems.
-app = create_initialized_flask_app()
-
-# Ensure the instance path is set to a writable directory in serverless environments like Vercel
-app.config['INSTANCE_PATH'] = '/tmp'  # Use `/tmp` instead of the default `/var/task/instance`
-app.instance_path = '/tmp'  # Make Flask's instance path writable in serverless environments
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class StandaloneApplication(BaseApplication):
-    def __init__(self, app, options=None):
-        self.application = app
-        self.options = options or {}
-        super().__init__()
-
-    def load_config(self):
-        # Apply configuration to Gunicorn
-        for key, value in self.options.items():
-            if key in self.cfg.settings and value is not None:
-                self.cfg.set(key.lower(), value)
-
-    def load(self):
-        return self.application
-
 def push_to_github():
     try:
         g = Github(os.environ['GITHUB_TOKEN'])
         user = g.get_user()
-        repo = user.create_repo("get_your_domain_info")
+        repo_name = "get_your_domain_info"
+        
+        try:
+            repo = user.get_repo(repo_name)
+            logger.info(f"Repository {repo_name} already exists. Updating files.")
+        except:
+            repo = user.create_repo(repo_name)
+            logger.info(f"Created new repository: {repo_name}")
         
         # Add files to the repository
         files_to_commit = [
@@ -42,29 +26,33 @@ def push_to_github():
             'requirements.txt', 'static/css/styles.css', 'static/js/home.js',
             'static/js/header.js', 'templates/home.html',
             'templates/partials/_header.html', 'templates/partials/_desktop_header.html',
-            'templates/partials/_mobile_header.html'
+            'templates/partials/_mobile_header.html', 'vercel.json'
         ]
         
         for file_name in files_to_commit:
-            file_path = os.path.join(os.getcwd(), file_name)
-            with open(file_path, 'r') as file:
-                content = file.read()
-            repo.create_file(file_name, f"Add {file_name}", content)
+            try:
+                with open(file_name, 'r') as file:
+                    content = file.read()
+                
+                try:
+                    contents = repo.get_contents(file_name)
+                    repo.update_file(file_name, f"Update {file_name}", content, contents.sha)
+                    logger.info(f"Updated {file_name}")
+                except:
+                    repo.create_file(file_name, f"Add {file_name}", content)
+                    logger.info(f"Added {file_name}")
+            except Exception as e:
+                logger.error(f"Error processing {file_name}: {str(e)}")
         
-        logger.info("Successfully pushed code to GitHub repository: get_your_domain_info")
+        logger.info(f"Successfully pushed code to GitHub repository: {repo_name}")
     except Exception as e:
         logger.error(f"Error pushing to GitHub: {str(e)}")
 
+app = create_app()
+
 if __name__ == "__main__":
-    options = {
-        "bind": "0.0.0.0:8080",
-        "workers": 4,
-        "loglevel": "info",
-        "accesslog": "-",
-        "timeout": 120
-    }
-    # Push code to GitHub when starting the app
     push_to_github()
-    
-    # Run the Flask app using Gunicorn
-    StandaloneApplication(app, options).run()
+    app.run(host='0.0.0.0', port=8080)
+else:
+    # For Vercel deployment
+    app = create_app()
