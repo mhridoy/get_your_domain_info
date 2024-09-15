@@ -60,5 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             subdomainsList.innerHTML = data.subdomains.map(subdomain => `<li>${subdomain}</li>`).join('');
         }
+        // Display SANs if available
+        if (data.san && data.san.length > 0) {
+            subdomainsList.innerHTML += '<li><strong>Subject Alternative Names:</strong></li>';
+            subdomainsList.innerHTML += data.san.map(san => `<li>${san[1]}</li>`).join('');
+        }
     }
 });
