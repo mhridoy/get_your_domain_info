@@ -2,52 +2,323 @@
 @import url("https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css");
 @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css");
 
-/* Custom styles for a more visually appealing theme */
+/* Custom styles for the advanced domain intelligence tool */
 :root {
-  --bg-color: #0a192f;
-  --text-color: #64ffda;
-  --header-bg: #112240;
-  --nav-link-bg: #233554;
-  --nav-link-hover: #64ffda;
-  --accent-color: #64ffda;
-  --footer-bg: #112240;
-  --footer-text-color: #64ffda;
+  --bg-color: #0f172a;
+  --text-color: #e2e8f0;
+  --header-bg: #1e293b;
+  --nav-link-bg: #334155;
+  --nav-link-hover: #3b82f6;
+  --accent-color: #3b82f6;
+  --footer-bg: #1e293b;
+  --footer-text-color: #94a3b8;
+  --card-bg: #ffffff;
+  --card-bg-dark: #1e293b;
+  --border-color: #e5e7eb;
+  --border-color-dark: #374151;
 }
 
 body {
-  background-color: var(--bg-color);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   color: var(--text-color);
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
   overflow-x: hidden;
 }
 
+/* Header Styles */
 .app-header {
-  background-color: var(--header-bg);
+  background: rgba(30, 41, 59, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.1);
   color: var(--text-color);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .app-logo-image {
   width: 3rem;
   height: 3rem;
   border-radius: 50%;
-  margin-right: 0.5rem;
-  box-shadow: 0 0 15px var(--accent-color);
+  margin-right: 0.75rem;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
   transition: all 0.3s ease;
 }
 
 .app-logo-image:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 25px var(--accent-color);
+  transform: scale(1.05) rotate(5deg);
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
 }
 
 .app-title {
   font-size: 1.75rem;
   font-weight: 700;
-  text-shadow: 0 0 10px var(--accent-color);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+/* Desktop navigation styles */
 .desktop-nav-link {
+  font-family: 'Courier New', monospace;
+  background-color: var(--nav-link-bg);
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.desktop-nav-link:hover {
+  background-color: var(--nav-link-hover);
+  color: var(--bg-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(100, 255, 218, 0.3);
+}
+
+/* Mobile navigation styles */
+.mobile-nav-link {
+  font-family: 'Courier New', monospace;
+  background-color: var(--nav-link-bg);
+  color: var(--text-color);
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.3s ease;
+  display: block;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.mobile-nav-link:hover {
+  background-color: var(--nav-link-hover);
+  color: var(--bg-color);
+  transform: scale(1.05);
+}
+
+/* Tab Styles */
+.tab-button {
+  transition: all 0.3s ease;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+}
+
+.tab-button:hover {
+  background-color: rgba(59, 130, 246, 0.1);
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.tab-button.active {
+  color: #3b82f6 !important;
+  border-color: #3b82f6 !important;
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+/* Card Styles */
+.shadow-lg {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .shadow-lg {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Progress Bar Styles */
+#progress-bar {
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Score Cards */
+.score-card {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.score-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.score-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.score-card:hover::before {
+  left: 100%;
+}
+
+/* Form Styles */
+input[type="text"] {
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.1);
+}
+
+button[type="submit"] {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+button[type="submit"]:hover {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Status Indicators */
+.status-good {
+  color: #10b981;
+}
+
+.status-warning {
+  color: #f59e0b;
+}
+
+.status-error {
+  color: #ef4444;
+}
+
+/* Email and Code Display */
+code {
+  background-color: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+.dark code {
+  background-color: rgba(59, 130, 246, 0.05);
+  border-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Footer styles */
+.moonlit-accent {
+  text-shadow: 0 0 10px var(--accent-color);
+  color: var(--footer-text-color);
+}
+
+.bg-footer-bg {
+  background-color: var(--footer-bg);
+}
+
+.text-footer-text-color {
+  color: var(--footer-text-color);
+}
+
+/* Main content area */
+.main-content {
+  min-height: calc(100vh - 80px);
+  padding-top: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .app-title {
+    font-size: 1.5rem;
+  }
+  
+  .tab-button {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Animation Classes */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b82f6;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1d4ed8;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+/* Loading States */
+.loading {
+  position: relative;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid #3b82f6;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
   font-family: 'Courier New', monospace;
   background-color: var(--nav-link-bg);
   color: var(--text-color);
