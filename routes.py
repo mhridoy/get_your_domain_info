@@ -46,6 +46,29 @@ def register_routes(app):
             logging.error(f"Error in domain analysis: {str(e)}")
             return jsonify({'error': str(e)}), 500
 
+    # Alternative endpoint for backward compatibility
+    @app.route('/api/domain/analyze', methods=['POST'])
+    def analyze_domain():
+        try:
+            data = request.get_json()
+            domain = data.get('domain', '').strip()
+            
+            if not domain:
+                return jsonify({'error': 'Domain is required'}), 400
+            
+            # Remove protocol if present
+            domain = domain.replace('http://', '').replace('https://', '')
+            domain = domain.split('/')[0]  # Remove path if present
+            
+            # Get comprehensive domain analysis
+            analysis = get_comprehensive_analysis(domain)
+            
+            return jsonify(analysis)
+            
+        except Exception as e:
+            logging.error(f"Error in domain analysis: {str(e)}")
+            return jsonify({'error': str(e)}), 500
+
     @app.route('/api/certificate', methods=['POST'])
     def get_certificate():
         try:
@@ -241,8 +264,46 @@ def get_whois_info(domain):
 def find_subdomains(domain):
     """Comprehensive subdomain discovery"""
     subdomains = set()
+    logging.info(f"Starting subdomain discovery for {domain}")
     
-    # Common subdomains to check
+    # Certificate transparency logs search - This is the most effective method
+    try:
+        # First, try crt.sh API
+        ct_url = f"https://crt.sh/?q=%.{domain}&output=json"
+        logging.info(f"Querying certificate transparency: {ct_url}")
+        
+        response = requests.get(ct_url, timeout=15, headers={
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        })
+        
+        if response.status_code == 200:
+            ct_data = response.json()
+            logging.info(f"Found {len(ct_data)} certificate entries")
+            
+            for entry in ct_data:
+                # Get both name_value and common_name fields
+                names = []
+                if entry.get('name_value'):
+                    names.extend(entry['name_value'].split('\n'))
+                if entry.get('common_name'):
+                    names.append(entry['common_name'])
+                
+                for name in names:
+                    name = name.strip().lower()
+                    # Skip wildcards but process the rest
+                    if name and not name.startswith('*') and name.endswith(domain):
+                        # Clean up the subdomain
+                        if name != domain:  # Don't include the main domain
+                            subdomains.add(name)
+            
+            logging.info(f"Certificate transparency found {len(subdomains)} unique subdomains")
+        else:
+            logging.warning(f"Certificate transparency request failed: {response.status_code}")
+            
+    except Exception as e:
+        logging.error(f"Certificate transparency search failed: {str(e)}")
+    
+    # Common subdomains to check via DNS
     common_subs = [
         'www', 'mail', 'ftp', 'admin', 'api', 'blog', 'dev', 'test', 'staging',
         'shop', 'store', 'support', 'help', 'docs', 'cdn', 'static', 'img',
@@ -252,39 +313,63 @@ def find_subdomains(domain):
         'mx', 'mx1', 'mx2', 'smtp', 'pop', 'imap', 'ns', 'ns1', 'ns2',
         'dns', 'cloud', 'app', 'apps', 'mobile', 'm', 'wap', 'forum',
         'forums', 'wiki', 'news', 'media', 'social', 'chat', 'live',
-        'stream', 'radio', 'tv', 'video', 'game', 'games', 'demo'
+        'stream', 'radio', 'tv', 'video', 'game', 'games', 'demo',
+        'beta', 'alpha', 'preview', 'sandbox', 'uat', 'qa', 'prod',
+        'production', 'development', 'stage', 'demo', 'old', 'new',
+        'backup', 'mirror', 'archive', 'cms', 'crm', 'erp', 'intranet'
     ]
     
-    # Check common subdomains
+    # Check common subdomains via DNS
     def check_subdomain(subdomain):
         try:
             full_domain = f"{subdomain}.{domain}"
-            dns.resolver.resolve(full_domain, 'A')
-            return full_domain
+            # Try both A and AAAA records
+            try:
+                dns.resolver.resolve(full_domain, 'A')
+                return full_domain
+            except:
+                dns.resolver.resolve(full_domain, 'AAAA')
+                return full_domain
         except:
             return None
     
-    with ThreadPoolExecutor(max_workers=50) as executor:
+    dns_found = 0
+    with ThreadPoolExecutor(max_workers=20) as executor:  # Reduced workers to be nice to DNS servers
         futures = [executor.submit(check_subdomain, sub) for sub in common_subs]
         for future in as_completed(futures):
             result = future.result()
             if result:
                 subdomains.add(result)
+                dns_found += 1
     
-    # Certificate transparency logs search
+    logging.info(f"DNS brute force found {dns_found} additional subdomains")
+    
+    # Try alternative certificate transparency sources
     try:
-        ct_url = f"https://crt.sh/?q=%.{domain}&output=json"
-        response = requests.get(ct_url, timeout=10)
-        if response.status_code == 200:
-            ct_data = response.json()
-            for entry in ct_data[:100]:  # Limit results
-                name = entry.get('name_value', '')
-                if name and not name.startswith('*'):
-                    subdomains.add(name.lower())
+        # Try Censys (if we had API key, but we'll try the public interface)
+        alternative_sources = [
+            f"https://transparencyreport.google.com/transparencyreport/api/v3/httpsct?domain={domain}",
+        ]
+        
+        # We can also try other CT log sources
+        for url in alternative_sources:
+            try:
+                response = requests.get(url, timeout=10, headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                })
+                # This would require parsing different response formats
+                # For now, we'll rely on crt.sh as the primary source
+            except:
+                continue
+                
     except Exception as e:
-        logging.debug(f"Certificate transparency search failed: {str(e)}")
+        logging.debug(f"Alternative CT sources failed: {str(e)}")
     
-    return sorted(list(subdomains))
+    # Remove duplicates and sort
+    final_subdomains = sorted(list(subdomains))
+    logging.info(f"Total unique subdomains found: {len(final_subdomains)}")
+    
+    return final_subdomains
 
 def extract_emails_comprehensive(domain):
     """Extract emails from multiple sources"""
