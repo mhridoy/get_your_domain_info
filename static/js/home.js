@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const progressInterval = simulateProgress();
 
         try {
-            const response = await fetch('/api/domain/analyze', {
+            const response = await fetch('/api/domain-info', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
