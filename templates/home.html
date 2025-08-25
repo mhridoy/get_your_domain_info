@@ -7,62 +7,173 @@
     <link rel="stylesheet" href="/static/css/styles.css" />
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/888/888879.png" type="image/x-icon">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>SSL Certificate Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Advanced Domain Intelligence Tool</title>
   </head>
   <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-200">
     {% include 'partials/_header.html' %}
     <div class="container mx-auto px-4 py-8 main-content">
-      <h1 class="text-4xl font-bold text-center mb-8">SSL Certificate Viewer</h1>
-      <div class="max-w-md mx-auto">
-        <form id="certificate-form" method="POST" class="mb-8 bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8">
+      <h1 class="text-4xl font-bold text-center mb-4">Advanced Domain Intelligence</h1>
+      <p class="text-center text-gray-600 dark:text-gray-400 mb-8">Comprehensive domain analysis with email extraction, security assessment, and detailed insights</p>
+      
+      <div class="max-w-4xl mx-auto">
+        <!-- Search Form -->
+        <form id="domain-form" method="POST" class="mb-8 bg-white dark:bg-gray-800 shadow-lg rounded-lg px-8 pt-6 pb-8">
           <div class="mb-4">
             <label class="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" for="domain">
-              Domain
+              Domain Name
             </label>
-            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" id="domain" type="text" name="domain" placeholder="Enter domain" required>
-          </div>
-          <div class="flex items-center justify-between">
-            <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition-colors duration-200" type="submit">
-              Fetch Certificate
-            </button>
+            <div class="flex">
+              <input class="shadow appearance-none border rounded-l w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600" 
+                     id="domain" type="text" name="domain" placeholder="Enter domain (e.g., example.com)" required>
+              <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-r focus:outline-none focus:shadow-outline transition-colors duration-200" type="submit">
+                <span class="analyze-text">Analyze Domain</span>
+                <span class="loading-text hidden">Analyzing...</span>
+              </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-1">Enter without http:// or https://</p>
           </div>
         </form>
         
         <!-- Progress Bar -->
-        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4 hidden" id="progress-bar-container">
-          <div class="bg-blue-600 h-2.5 rounded-full" id="progress-bar" style="width: 0%"></div>
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-6 hidden" id="progress-container">
+          <div class="bg-gradient-to-r from-blue-500 to-purple-600 h-3 rounded-full transition-all duration-300" id="progress-bar" style="width: 0%"></div>
+          <p class="text-center text-sm mt-2" id="progress-text">Initializing analysis...</p>
         </div>
         
-        <div id="result" class="hidden">
-          <div id="certificate-info" class="bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <h2 class="text-2xl font-bold mb-4">Certificate Information</h2>
-            <table class="min-w-full bg-white dark:bg-gray-800">
-              <thead>
-                <tr>
-                  <th class="border px-4 py-2">Field</th>
-                  <th class="border px-4 py-2">Details</th>
-                </tr>
-              </thead>
-              <tbody id="certificate-details"></tbody>
-            </table>
+        <!-- Results Section -->
+        <div id="results" class="hidden space-y-6">
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+              <h3 class="text-lg font-semibold mb-2">Overall Score</h3>
+              <div class="text-3xl font-bold text-blue-600" id="overall-score">--</div>
+              <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div class="bg-blue-600 h-2 rounded-full" id="overall-score-bar" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+              <h3 class="text-lg font-semibold mb-2">Security Score</h3>
+              <div class="text-3xl font-bold text-green-600" id="security-score">--</div>
+              <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div class="bg-green-600 h-2 rounded-full" id="security-score-bar" style="width: 0%"></div>
+              </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+              <h3 class="text-lg font-semibold mb-2">Trust Score</h3>
+              <div class="text-3xl font-bold text-purple-600" id="trust-score">--</div>
+              <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div class="bg-purple-600 h-2 rounded-full" id="trust-score-bar" style="width: 0%"></div>
+              </div>
+            </div>
           </div>
-          
-          <div id="subdomains-info" class="bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8">
-            <h2 class="text-2xl font-bold mb-4">Subdomains</h2>
-            <ul id="subdomains-list" class="list-disc pl-5"></ul>
+
+          <!-- Tabs Navigation -->
+          <div class="border-b border-gray-200 dark:border-gray-700">
+            <nav class="-mb-px flex space-x-8" id="tabs">
+              <button class="tab-button active border-b-2 border-blue-500 py-2 px-1 text-blue-600 font-medium" data-tab="overview">Overview</button>
+              <button class="tab-button border-b-2 border-transparent py-2 px-1 text-gray-500 hover:text-gray-700" data-tab="certificate">SSL Certificate</button>
+              <button class="tab-button border-b-2 border-transparent py-2 px-1 text-gray-500 hover:text-gray-700" data-tab="emails">Email Addresses</button>
+              <button class="tab-button border-b-2 border-transparent py-2 px-1 text-gray-500 hover:text-gray-700" data-tab="subdomains">Subdomains</button>
+              <button class="tab-button border-b-2 border-transparent py-2 px-1 text-gray-500 hover:text-gray-700" data-tab="dns">DNS Records</button>
+              <button class="tab-button border-b-2 border-transparent py-2 px-1 text-gray-500 hover:text-gray-700" data-tab="whois">WHOIS Info</button>
+              <button class="tab-button border-b-2 border-transparent py-2 px-1 text-gray-500 hover:text-gray-700" data-tab="security">Security</button>
+            </nav>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="tab-content">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-pane active">
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                  <h3 class="text-xl font-semibold mb-4">Key Findings</h3>
+                  <ul id="key-findings" class="space-y-2"></ul>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                  <h3 class="text-xl font-semibold mb-4">Recommendations</h3>
+                  <ul id="recommendations" class="space-y-2"></ul>
+                </div>
+              </div>
+              <div class="mt-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold mb-4">Technology Stack</h3>
+                <div id="technology-stack" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+              </div>
+            </div>
+
+            <!-- Certificate Tab -->
+            <div id="certificate-tab" class="tab-pane hidden">
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold mb-4">SSL Certificate Details</h3>
+                <div id="certificate-details" class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"></table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Emails Tab -->
+            <div id="emails-tab" class="tab-pane hidden">
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold mb-4">Email Addresses Found</h3>
+                <div id="emails-content" class="space-y-4"></div>
+              </div>
+            </div>
+
+            <!-- Subdomains Tab -->
+            <div id="subdomains-tab" class="tab-pane hidden">
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold mb-4">Discovered Subdomains</h3>
+                <div id="subdomains-content"></div>
+              </div>
+            </div>
+
+            <!-- DNS Tab -->
+            <div id="dns-tab" class="tab-pane hidden">
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold mb-4">DNS Records</h3>
+                <div id="dns-content" class="space-y-4"></div>
+              </div>
+            </div>
+
+            <!-- WHOIS Tab -->
+            <div id="whois-tab" class="tab-pane hidden">
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                <h3 class="text-xl font-semibold mb-4">WHOIS Information</h3>
+                <div id="whois-content" class="overflow-x-auto">
+                  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700"></table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div id="security-tab" class="tab-pane hidden">
+              <div class="space-y-6">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                  <h3 class="text-xl font-semibold mb-4">Security Headers</h3>
+                  <div id="security-headers" class="space-y-2"></div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                  <h3 class="text-xl font-semibold mb-4">Open Ports</h3>
+                  <div id="open-ports"></div>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
+                  <h3 class="text-xl font-semibold mb-4">Domain Reputation</h3>
+                  <div id="domain-reputation"></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <style>
-          #certificate-info, #subdomains-info {
-            transition: all 0.3s ease;
-          }
-          #certificate-info:hover, #subdomains-info:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          }
-        </style>
-        <footer class="text-center mt-8 bg-footer-bg py-4">
-          <p class="text-footer-text-color moonlit-accent">Created by Moshiur Rahman</p>
+        
+        <!-- Error Display -->
+        <div id="error-display" class="hidden bg-red-100 dark:bg-red-900 border border-red-400 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
+          <strong class="font-bold">Error:</strong>
+          <span id="error-message"></span>
+        </div>
+
+        <footer class="text-center mt-12 py-8">
+          <p class="text-gray-600 dark:text-gray-400">Advanced Domain Intelligence Tool - Created by Moshiur Rahman</p>
+          <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">Comprehensive domain analysis including SSL, DNS, WHOIS, and email extraction</p>
         </footer>
       </div>
     </div>
